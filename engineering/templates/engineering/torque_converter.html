@@ -1,0 +1,15 @@
+<!-- engineering/templates/engineering/torque_converter.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Torque Converter</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="newton_meters">Newton Meters (N·m):</label>
+    <input type="number" id="newton_meters" name="newton_meters" step="0.01" required>
+    <button type="submit">Convert to Pound-Feet</button>
+</form>
+{% if result %}
+    <p>{{ result }}</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,12 @@
+<!-- core/templates/core/home.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Welcome to the Unit Converter!</h1>
+<p>Choose a category to get started:</p>
+<ul>
+    <li><a href="{% url 'length_converter' %}">Length Converter</a></li>
+    <li><a href="{% url 'torque_converter' %}">Torque Converter</a></li>
+    <li><a href="{% url 'thermal_conductivity_converter' %}">Thermal Conductivity Converter</a></li>
+</ul>
+{% endblock %}

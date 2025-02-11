@@ -1,0 +1,15 @@
+<!-- heat/templates/heat/thermal_conductivity_converter.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Thermal Conductivity Converter</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="watts_per_meter_kelvin">Watts per Meter-Kelvin (W/(m·K)):</label>
+    <input type="number" id="watts_per_meter_kelvin" name="watts_per_meter_kelvin" step="0.01" required>
+    <button type="submit">Convert to BTU/(hr·ft·°F)</button>
+</form>
+{% if result %}
+    <p>{{ result }}</p>
+{% endif %}
+{% endblock %}
