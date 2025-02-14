@@ -3,6 +3,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('length/', views.length_converter, name='length_converter'),
-    # Add more paths for other converters
+    path("", views.common_converter, name="common_converter"),
 ]

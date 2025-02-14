@@ -1,0 +1,86 @@
+<!-- common/templates/common/master_converter.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Unit Converter</h2>
+<form method="post" id="master-converter-form">
+    {% csrf_token %}
+    <label for="converter_type">Select Converter:</label>
+    <select id="converter_type" name="converter_type">
+        {% for converter, units in converters.items %}
+            <option value="{{ converter }}">{{ converter|title }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="value">Value:</label>
+    <input type="number" id="value" name="value" step="0.01" required>
+
+    <label for="from_unit">From:</label>
+    <select id="from_unit" name="from_unit"></select>
+
+    <label for="to_unit">To:</label>
+    <select id="to_unit" name="to_unit"></select>
+
+    <button type="submit">Convert</button>
+</form>
+
+<p id="result"></p>
+
+<!-- Pass converters data to JavaScript -->
+{{ converters_json|json_script:"converters-data" }}
+
+<script>
+// Retrieve converters data from the JSON script tag
+const converters = JSON.parse(document.getElementById('converters-data').textContent);
+console.log('Converters Data:', converters);  // Debugging
+
+// Update "From" and "To" dropdowns based on converter type
+document.getElementById('converter_type').addEventListener('change', function() {
+    const converterType = this.value;
+    const units = converters[converterType];
+    console.log('Selected Converter:', converterType);  // Debugging
+    console.log('Units:', units);  // Debugging
+
+    const fromUnit = document.getElementById('from_unit');
+    const toUnit = document.getElementById('to_unit');
+
+    // Clear existing options
+    fromUnit.innerHTML = '';
+    toUnit.innerHTML = '';
+
+    // Add new options
+    units.forEach(unit => {
+        const option = document.createElement('option');
+        option.value = unit;
+        option.text = unit;
+        fromUnit.appendChild(option);
+        toUnit.appendChild(option.cloneNode(true));
+    });
+});
+
+// Trigger the change event to populate dropdowns on page load
+document.getElementById('converter_type').dispatchEvent(new Event('change'));
+
+// Handle form submission
+document.getElementById('master-converter-form').addEventListener('submit', function(event) {
+    event.preventDefault();  // Prevent form submission
+
+    const formData = new FormData(this);
+    fetch('', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')  // Include CSRF token
+        }
+    })
+    .then(response => response.text())
+    .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const result = doc.querySelector('#result').innerText;
+        document.querySelector('#result').innerText = result;  // Update the result
+    })
+    .catch(error => console.error('Error:', error));
+});
+</script>
+{% endblock %}

@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .converter-section {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .converter-section h2 {
+        color: var(--text-dark);
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .converter-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .input-group label {
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+
+    .input-group input,
+    .input-group select {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        width: 100%;
+        background-color: white;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+        outline: none;
+        border-color: var(--header-bg);
+        box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
+    }
+
+    button[type="submit"] {
+        background-color: var(--header-bg);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        width: 100%;
+    }
+
+    button[type="submit"]:hover {
+        background-color: var(--nav-hover);
+    }
+
+    .result {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        border-left: 4px solid var(--header-bg);
+    }
+
+    .result p {
+        margin: 0;
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .converter-section {
+            padding: 1.5rem;
+            margin: 0 1rem;
+        }
+    }
+</style>
+
+<div class="converter-section">
+    <h2><i class="fas fa-cog"></i> Engineering Converter</h2>
+    <form method="post" id="converter-form" class="converter-form">
+        {% csrf_token %}
+        
+        <input type="hidden" id="converter_type_input" name="converter_type">
+
+        <div class="input-group">
+            <label for="converter_type">Select Converter:</label>
+            <select id="converter_type">
+                <option value="velocity_angular">Velocity Angular</option>
+                <option value="acceleration">Acceleration Converter</option>
+                <option value="acceleration_angular">Acceleration Angular</option>
+                <option value="density">Density Converter</option>
+                <option value="specific_volume">Specific Volume Converter</option>
+                <option value="moment_of_inertia">Moment of Inertia Converter</option>
+                <option value="moment_of_force">Moment of Force Converter</option>
+                <option value="torque">Torque Converter</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="value">Value:</label>
+            <input type="number" id="value" name="value" step="0.01" required value="{{ value|default:'' }}">
+        </div>
+
+        <div class="input-group">
+            <label for="from_unit">From:</label>
+            <select id="from_unit" name="from_unit"></select>
+        </div>
+
+        <div class="input-group">
+            <label for="to_unit">To:</label>
+            <select id="to_unit" name="to_unit"></select>
+        </div>
+
+        <button type="submit">Convert</button>
+    </form>
+
+    {% if result %}
+        <div class="result">
+            <p><strong>Result:</strong> {{ value }} {{ from_unit }} = {{ result }} {{ to_unit }}</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    const uomMapping = {
+        velocity_angular: ["Radian per Second", "Degree per Second", "Revolution per Minute", "Hertz", "Revolution per Second", "Gradian per Second"],
+        acceleration: ["Meter per Second Squared", "Foot per Second Squared", "Gal", "Standard Gravity", "Inch per Second Squared", "Mile per Hour Squared"],
+        acceleration_angular: ["Radian per Second Squared", "Degree per Second Squared", "Revolution per Minute Squared", "Gradian per Second Squared"],
+        density: ["Kilogram per Cubic Meter", "Gram per Cubic Centimeter", "Pound per Cubic Foot", "Pound per Cubic Inch", "Ounce per Cubic Inch", "Gram per Liter", "Kilogram per Liter"],
+        specific_volume: ["Cubic Meter per Kilogram", "Liter per Kilogram", "Cubic Foot per Pound", "Cubic Inch per Pound", "Gallon per Pound", "Milliliter per Gram"],
+        moment_of_inertia: ["Kilogram Square Meter", "Gram Square Centimeter", "Pound Square Foot", "Pound Square Inch", "Ounce Square Inch", "Slug Square Foot"],
+        moment_of_force: ["Newton Meter", "Kilogram-Force Meter", "Pound-Force Foot", "Pound-Force Inch", "Dyne Centimeter", "Ounce-Force Foot"],
+        torque: ["Newton Meter", "Dyne Centimeter", "Kilogram-Force Meter", "Pound-Force Foot", "Ounce-Force Inch", "Kilopond Meter", "Gram-Force Centimeter"]
+    };
+
+    // Function to set select value
+    function setSelectValue(selectElement, value) {
+        if (value) {
+            selectElement.value = value.toLowerCase();
+        }
+    }
+
+    function updateUnits() {
+        const selectedConverter = document.getElementById("converter_type").value;
+        const fromUnitSelect = document.getElementById("from_unit");
+        const toUnitSelect = document.getElementById("to_unit");
+
+        fromUnitSelect.innerHTML = "";
+        toUnitSelect.innerHTML = "";
+
+        uomMapping[selectedConverter].forEach(unit => {
+            fromUnitSelect.add(new Option(unit, unit.toLowerCase()));
+            toUnitSelect.add(new Option(unit, unit.toLowerCase()));
+        });
+
+        // Restore selected values if they exist
+        if (window.selectedFromUnit) {
+            setSelectValue(fromUnitSelect, window.selectedFromUnit);
+        }
+        if (window.selectedToUnit) {
+            setSelectValue(toUnitSelect, window.selectedToUnit);
+        }
+    }
+
+    // Initialize saved values
+    window.selectedFromUnit = "{{ from_unit|default:'' }}";
+    window.selectedToUnit = "{{ to_unit|default:'' }}";
+    window.selectedConverterType = "{{ converter_type|default:'velocity_angular' }}";
+
+    // Set initial converter type
+    const converterTypeSelect = document.getElementById("converter_type");
+    converterTypeSelect.value = window.selectedConverterType;
+
+    // Update units and restore values
+    updateUnits();
+
+    // Event listeners
+    converterTypeSelect.addEventListener("change", function() {
+        window.selectedConverterType = this.value;
+        updateUnits();
+    });
+
+    document.getElementById("from_unit").addEventListener("change", function() {
+        window.selectedFromUnit = this.value;
+    });
+
+    document.getElementById("to_unit").addEventListener("change", function() {
+        window.selectedToUnit = this.value;
+    });
+
+    document.getElementById("converter-form").addEventListener("submit", function() {
+        document.getElementById("converter_type_input").value = document.getElementById("converter_type").value;
+    });
+</script>
+{% endblock %}

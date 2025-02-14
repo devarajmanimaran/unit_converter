@@ -1,32 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unit Converter</title>
-    <!-- Add CSS or static files here -->
-</head>
-<body>
-    <header>
-        <h1>Unit Converter</h1>
-        <nav>
-            <a href="{% url 'home' %}">Home</a>
-            <a href="{% url 'length_converter' %}">Common Converters</a>
-            <a href="{% url 'torque_converter' %}">Engineering Converters</a>
-            <a href="{% url 'thermal_conductivity_converter' %}">Heat Converters</a>
-        </nav>
-    </header>
-    <main>
-        <h1>Welcome to the Unit Converter!</h1>
-        <p>Choose a category to get started:</p>
-        <ul>
-            <li><a href="{% url 'length_converter' %}">Common Converters</a></li>
-            <li><a href="{% url 'torque_converter' %}">Engineering Converters</a></li>
-            <li><a href="{% url 'thermal_conductivity_converter' %}">Heat Converters</a></li>
-        </ul>
-    </main>
-    <footer>
-        <p>&copy; 2023 Unit Converter</p>
-    </footer>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+        <div class="welcome-section">
+            <h1>Welcome to the Unit Converter</h1>
+            <p>Transform units quickly and accurately with our comprehensive conversion tools. Select a category below to begin converting:</p>
+            
+            <div class="converter-grid">
+                <div class="converter-card">
+                    <a href="{% url 'common_converter' %}">
+                        <i class="fas fa-ruler"></i>
+                        <h3>Common Converters</h3>
+                        <p>Length, Weight, Volume and more</p>
+                    </a>
+                </div>
+                <div class="converter-card">
+                    <a href="{% url 'engineering_converter' %}">
+                        <i class="fas fa-cog"></i>
+                        <h3>Engineering Converters</h3>
+                        <p>Torque, Pressure, Force and more</p>
+                    </a>
+                </div>
+                <div class="converter-card">
+                    <a href="{% url 'heat_converter' %}">
+                        <i class="fas fa-temperature-high"></i>
+                        <h3>Heat Converters</h3>
+                        <p>Temperature, Thermal conductivity and more</p>
+                    </a>
+                </div>
+                <div class="converter-card">
+                    <a href="{% url 'magnetism_converter' %}">
+                        <i class="fas fa-magnet"></i>
+                        <h3>Magnetism Converters</h3>
+                        <p>Magnetic field, flux density and more</p>
+                    </a>
+                </div>
+                <div class="converter-card">
+                    <a href="{% url 'electricity_converter' %}">
+                        <i class="fas fa-bolt"></i>
+                        <h3>Electricity Converters</h3>
+                        <p>Current, voltage, resistance and more</p>
+                    </a>
+                </div>
+                <div class="converter-card">
+                    <a href="{% url 'fluids_converter' %}">
+                        <i class="fas fa-tint"></i>
+                        <h3>Fluids Converters</h3>
+                        <p>Flow rate, viscosity, pressure and more</p>
+                    </a>
+                </div>
+                <div class="converter-card">
+                    <a href="{% url 'light_converter' %}">
+                        <i class="fas fa-lightbulb"></i>
+                        <h3>Light Converters</h3>
+                        <p>Luminosity, wavelength, frequency and more</p>
+                    </a>
+                </div>
+                <div class="converter-card">
+                    <a href="{% url 'radiology_converter' %}">
+                        <i class="fas fa-radiation"></i>
+                        <h3>Radiology Converters</h3>
+                        <p>Radition Activity, Exposure, Absorbed Dose and more</p>
+                    </a>
+                </div>
+                <div class="converter-card">
+                    <a href="{% url 'other_converter' %}">
+                        <i class="fas fa-ellipsis-h"></i>
+                        <h3>Other Converters</h3>
+                        <p>Miscellaneous scientific and technical conversions</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+{% endblock %}

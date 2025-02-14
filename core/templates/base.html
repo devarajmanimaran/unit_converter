@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Converter</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --header-bg: #2c3e50;
+            --body-bg: #f5f6fa;
+            --nav-hover: #34495e;
+            --text-light: #ecf0f1;
+            --text-dark: #2c3e50;
+            --footer-bg: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            max-width: 1900px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            height: 60px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background-color: var(--text-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .title {
+            color: var(--text-light);
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        nav {
+            background-color: var(--header-bg);
+            padding: 0.1rem 2rem;
+            min-height: 60px;
+            display: flex;
+            align-items: left;
+        }
+
+        .nav-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .nav-links a:hover {
+            background-color: var(--nav-hover);
+        }
+        .nav-toggle {
+            display: none;
+            color: var(--text-light);
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            list-style: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nav-links li {
+            flex: 0 1 auto;
+            white-space: nowrap;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a i {
+            width: 20px;
+            text-align: center;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .welcome-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+
+        p {
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .converter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .converter-card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        .converter-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .converter-card a {
+            color: var(--text-dark);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .converter-card i {
+            font-size: 2rem;
+            color: var(--header-bg);
+        }
+
+        footer {
+            background-color: var(--footer-bg);
+            color: var(--text-light);
+            padding: 1.5rem;
+            text-align: center;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: auto;
+        }
+
+        footer p {
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 0.5rem 1rem;
+            }
+
+            .nav-toggle {
+                display: block;
+            }
+
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 1rem 0;
+                width: 100%;
+            }
+
+            .nav-links.active {
+                display: flex;
+                position: absolute;
+                top: 140px;
+                left: 0;
+                background-color: var(--header-bg);
+                z-index: 1000;
+                padding: 1rem;
+            }
+
+            .nav-links li {
+                width: 100%;
+            }
+
+            .nav-links a {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .header-content {
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+            <h1 class="title">Unit Converter</h1>
+        </div>
+        <nav>
+            <div class="nav-content">
+                <button class="nav-toggle" onclick="toggleNav()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <ul class="nav-links">
+                    <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="{% url 'common_converter' %}"><i class="fas fa-ruler"></i> Common Converters</a></li>
+                    <li><a href="{% url 'engineering_converter' %}"><i class="fas fa-cog"></i> Engineering Converters</a></li>
+                    <li><a href="{% url 'heat_converter' %}"><i class="fas fa-temperature-high"></i> Heat Converters</a></li>
+                    <li><a href="{% url 'magnetism_converter' %}"><i class="fas fa-magnet"></i> Magnetism</a></li>
+                    <li><a href="{% url 'electricity_converter' %}"><i class="fas fa-bolt"></i> Electricity</a></li>
+                    <li><a href="{% url 'fluids_converter' %}"><i class="fas fa-tint"></i> Fluids</a></li>
+                    <li><a href="{% url 'light_converter' %}"><i class="fas fa-lightbulb"></i> Light</a></li>
+                    <li><a href="{% url 'radiology_converter' %}"><i class="fas fa-radiation"></i> Radiology</a></li>
+                    <li><a href="{% url 'other_converter' %}"><i class="fas fa-ellipsis-h"></i> Other</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+		{% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Unit Converter | All rights reserved</p>
+    </footer>
+
+    <script>
+        function toggleNav() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

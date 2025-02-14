@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .converter-section {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .converter-section h2 {
+        color: var(--text-dark);
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .converter-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .input-group label {
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+
+    .input-group input,
+    .input-group select {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        width: 100%;
+        background-color: white;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+        outline: none;
+        border-color: var(--header-bg);
+        box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
+    }
+
+    button[type="submit"] {
+        background-color: var(--header-bg);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        width: 100%;
+    }
+
+    button[type="submit"]:hover {
+        background-color: var(--nav-hover);
+    }
+
+    .result {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        border-left: 4px solid var(--header-bg);
+    }
+
+    .result p {
+        margin: 0;
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .converter-section {
+            padding: 1.5rem;
+            margin: 0 1rem;
+        }
+    }
+</style>
+
+<div class="converter-section">
+    <h2><i class="fas fa-magnet"></i> Magnetism Converter</h2>
+    <form method="post" id="converter-form" class="converter-form">
+        {% csrf_token %}
+        
+        <input type="hidden" id="converter_type_input" name="converter_type">
+
+        <div class="input-group">
+            <label for="converter_type">Select Converter:</label>
+            <select id="converter_type">
+                <option value="magnetomotive_force">Magnetomotive Force Converter</option>
+                <option value="magnetic_field_strength">Magnetic Field Strength Converter</option>
+                <option value="magnetic_flux">Magnetic Flux Converter</option>
+                <option value="magnetic_flux_density">Magnetic Flux Density Converter</option>                
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="value">Value:</label>
+            <input type="number" id="value" name="value" step="0.01" required value="{{ value|default:'' }}">
+        </div>
+
+        <div class="input-group">
+            <label for="from_unit">From:</label>
+            <select id="from_unit" name="from_unit"></select>
+        </div>
+
+        <div class="input-group">
+            <label for="to_unit">To:</label>
+            <select id="to_unit" name="to_unit"></select>
+        </div>
+
+        <button type="submit">Convert</button>
+    </form>
+
+    {% if result %}
+        <div class="result">
+            <p><strong>Result:</strong> {{ value }} {{ from_unit }} = {{ result }} {{ to_unit }}</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    const uomMapping = {
+        magnetomotive_force: ["Ampere Turn", "Gilbert"],
+        magnetic_field_strength: ["Ampere per Meter", "Oersted"],
+        magnetic_flux: ["Weber", "Maxwell"],
+        magnetic_flux_density: ["Tesla", "Gauss"]
+    };
+
+    // Function to set select value
+    function setSelectValue(selectElement, value) {
+        if (value) {
+            selectElement.value = value.toLowerCase();
+        }
+    }
+
+    function updateUnits() {
+        const selectedConverter = document.getElementById("converter_type").value;
+        const fromUnitSelect = document.getElementById("from_unit");
+        const toUnitSelect = document.getElementById("to_unit");
+
+        fromUnitSelect.innerHTML = "";
+        toUnitSelect.innerHTML = "";
+
+        uomMapping[selectedConverter].forEach(unit => {
+            fromUnitSelect.add(new Option(unit, unit.toLowerCase()));
+            toUnitSelect.add(new Option(unit, unit.toLowerCase()));
+        });
+
+        // Restore selected values if they exist
+        if (window.selectedFromUnit) {
+            setSelectValue(fromUnitSelect, window.selectedFromUnit);
+        }
+        if (window.selectedToUnit) {
+            setSelectValue(toUnitSelect, window.selectedToUnit);
+        }
+    }
+
+    // Initialize saved values
+    window.selectedFromUnit = "{{ from_unit|default:'' }}";
+    window.selectedToUnit = "{{ to_unit|default:'' }}";
+    window.selectedConverterType = "{{ converter_type|default:'magnetomotive_force' }}";
+
+    // Set initial converter type
+    const converterTypeSelect = document.getElementById("converter_type");
+    converterTypeSelect.value = window.selectedConverterType;
+
+    // Update units and restore values
+    updateUnits();
+
+    // Event listeners
+    converterTypeSelect.addEventListener("change", function() {
+        window.selectedConverterType = this.value;
+        updateUnits();
+    });
+
+    document.getElementById("from_unit").addEventListener("change", function() {
+        window.selectedFromUnit = this.value;
+    });
+
+    document.getElementById("to_unit").addEventListener("change", function() {
+        window.selectedToUnit = this.value;
+    });
+
+    document.getElementById("converter-form").addEventListener("submit", function() {
+        document.getElementById("converter_type_input").value = document.getElementById("converter_type").value;
+    });
+</script>
+{% endblock %}

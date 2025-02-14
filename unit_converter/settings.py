@@ -41,6 +41,12 @@ INSTALLED_APPS = [
     'engineering',
     'heat',
     'core',
+    'fluids',
+    'light',
+    'magnetism',
+    'electricity',
+    'radiology',
+    'other',
 ]
 
 MIDDLEWARE = [

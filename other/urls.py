@@ -3,6 +3,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.heat_converter, name='heat_converter'),
+    path('', views.other_converter, name='other_converter'),
     # Add more paths for other heat converters
 ]

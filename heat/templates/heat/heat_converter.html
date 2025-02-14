@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .converter-section {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .converter-section h2 {
+        color: var(--text-dark);
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .converter-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .input-group label {
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+
+    .input-group input,
+    .input-group select {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        width: 100%;
+        background-color: white;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+        outline: none;
+        border-color: var(--header-bg);
+        box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
+    }
+
+    button[type="submit"] {
+        background-color: var(--header-bg);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        width: 100%;
+    }
+
+    button[type="submit"]:hover {
+        background-color: var(--nav-hover);
+    }
+
+    .result {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        border-left: 4px solid var(--header-bg);
+    }
+
+    .result p {
+        margin: 0;
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .converter-section {
+            padding: 1.5rem;
+            margin: 0 1rem;
+        }
+    }
+</style>
+
+<div class="converter-section">
+    <h2><i class="fas fa-temperature-high"></i> Heat Converter</h2>
+    <form method="post" id="converter-form" class="converter-form">
+        {% csrf_token %}
+        
+        <input type="hidden" id="converter_type_input" name="converter_type">
+
+        <div class="input-group">
+            <label for="converter_type">Select Converter:</label>
+            <select id="converter_type">
+                <option value="fuel_efficiency_mass">Fuel Efficiency Mass Converter</option>
+                <option value="fuel_efficiency_volume">Fuel Efficiency Volume Converter</option>
+                <option value="temperature_interval">Temperature Interval Converter</option>
+                <option value="thermal_expansion">Thermal Expansion Converter</option>
+                <option value="thermal_resistance">Thermal Resistance Converter</option>
+                <option value="thermal_conductivity">Thermal Conductivity Converter</option>
+                <option value="specific_heat_capacity">Specific Heat Capacity Converter</option>
+                <option value="heat_density">Heat Density Converter</option>
+                <option value="heat_flux_density">Heat Flux Density Converter</option>
+                <option value="heat_transfer_coefficient">Heat Transfer Coefficient Converter</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="value">Value:</label>
+            <input type="number" id="value" name="value" step="0.01" required value="{{ value|default:'' }}">
+        </div>
+
+        <div class="input-group">
+            <label for="from_unit">From:</label>
+            <select id="from_unit" name="from_unit"></select>
+        </div>
+
+        <div class="input-group">
+            <label for="to_unit">To:</label>
+            <select id="to_unit" name="to_unit"></select>
+        </div>
+
+        <button type="submit">Convert</button>
+    </form>
+
+    {% if result %}
+        <div class="result">
+            <p><strong>Result:</strong> {{ value }} {{ from_unit }} = {{ result }} {{ to_unit }}</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    const uomMapping = {
+        fuel_efficiency_mass: ["Kilometer per Kilogram", "Mile per Pound", "Meter per Gram"],
+        fuel_efficiency_volume: ["Kilometer per Liter", "Mile per Gallon", "Meter per Milliliter"],
+        temperature_interval: ["Celsius", "Kelvin", "Fahrenheit"],
+        thermal_expansion: ["Per Kelvin", "Per Celsius"],
+        thermal_resistance: ["Kelvin per Watt", "Celsius per Watt"],
+        thermal_conductivity: ["Watt per Meter Kelvin", "Calorie per Second Centimeter Celsius"],
+        specific_heat_capacity: ["Joule per Kilogram Kelvin", "Calorie per Gram Celsius"],
+        heat_density: ["Joule per Cubic Meter", "Calorie per Cubic Centimeter"],
+        heat_flux_density: ["Watt per Square Meter", "Calorie per Second Square Centimeter"],
+        heat_transfer_coefficient: ["Watt per Square Meter Kelvin", "Calorie per Second Square Meter Celsius"]
+    };
+
+    // Function to set select value
+    function setSelectValue(selectElement, value) {
+        if (value) {
+            selectElement.value = value.toLowerCase();
+        }
+    }
+
+    function updateUnits() {
+        const selectedConverter = document.getElementById("converter_type").value;
+        const fromUnitSelect = document.getElementById("from_unit");
+        const toUnitSelect = document.getElementById("to_unit");
+
+        fromUnitSelect.innerHTML = "";
+        toUnitSelect.innerHTML = "";
+
+        uomMapping[selectedConverter].forEach(unit => {
+            fromUnitSelect.add(new Option(unit, unit.toLowerCase()));
+            toUnitSelect.add(new Option(unit, unit.toLowerCase()));
+        });
+
+        // Restore selected values if they exist
+        if (window.selectedFromUnit) {
+            setSelectValue(fromUnitSelect, window.selectedFromUnit);
+        }
+        if (window.selectedToUnit) {
+            setSelectValue(toUnitSelect, window.selectedToUnit);
+        }
+    }
+
+    // Initialize saved values
+    window.selectedFromUnit = "{{ from_unit|default:'' }}";
+    window.selectedToUnit = "{{ to_unit|default:'' }}";
+    window.selectedConverterType = "{{ converter_type|default:'fuel_efficiency_mass' }}";
+
+    // Set initial converter type
+    const converterTypeSelect = document.getElementById("converter_type");
+    converterTypeSelect.value = window.selectedConverterType;
+
+    // Update units and restore values
+    updateUnits();
+
+    // Event listeners
+    converterTypeSelect.addEventListener("change", function() {
+        window.selectedConverterType = this.value;
+        updateUnits();
+    });
+
+    document.getElementById("from_unit").addEventListener("change", function() {
+        window.selectedFromUnit = this.value;
+    });
+
+    document.getElementById("to_unit").addEventListener("change", function() {
+        window.selectedToUnit = this.value;
+    });
+
+    document.getElementById("converter-form").addEventListener("submit", function() {
+        document.getElementById("converter_type_input").value = document.getElementById("converter_type").value;
+    });
+</script>
+{% endblock %}

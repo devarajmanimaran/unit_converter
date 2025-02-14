@@ -23,5 +23,11 @@ urlpatterns = [
     path('common/', include('common.urls')),
     path('engineering/', include('engineering.urls')),
     path('heat/', include('heat.urls')),
+    path('fluids/', include('fluids.urls')),
+    path('light/', include('light.urls')),
+    path('magnetism/', include('magnetism.urls')),
+    path('electricity/', include('electricity.urls')),
+    path('radiology/', include('radiology.urls')),
+    path('other/', include('other.urls')),
     path('', include('core.urls')),
 ]
